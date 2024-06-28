@@ -1,7 +1,6 @@
 {
   "name": "theio-vitality-calculator",
   "version": "0.1.0",
-  "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -14,9 +13,9 @@
     "recharts": "^2.12.7",
     "tailwindcss": "^2.2.19",
     "web-vitals": "^2.1.4",
-    "homepage": "https://github.com/Alasuite/calculator-margin",
     "xlsx": "^0.18.5"
   },
+  "homepage": "https://alasuite.github.io/calculator-margin",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
