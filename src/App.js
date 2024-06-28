@@ -1,5 +1,5 @@
 import React from 'react';
-import TheioVitalityMarginCalculator from './TheioVitalityMarginCalculator';
+import TheioVitalityMarginCalculator from './TheioVitalityMarginCalculator.V2.vercel';
 import './index.css';
 
 function App() {

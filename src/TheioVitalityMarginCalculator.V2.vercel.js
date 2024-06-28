@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Minus, DollarSign, TrendingUp, BarChart, Download } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import * as XLSX from 'xlsx';
-import './index.css'; // Ensure the styles are imported
 
 const CURRENCIES = {
   USD: { name: 'US Dollar', symbol: '$' },
@@ -89,7 +88,7 @@ const StageRow = ({ stage, index, onInputChange, onRemove, baseCurrency }) => (
       {index > 0 && (
         <button
           onClick={() => onRemove(index)}
-          className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition duration-300"
+          className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
         >
           <Minus size={16} />
         </button>
