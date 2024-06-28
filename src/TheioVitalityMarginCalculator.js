@@ -1,11 +1,3 @@
-//Summary of Changes
-//Dark Mode: Enabled dark mode in Tailwind CSS.
-//Centered Content: Adjusted CSS for better centering and spacing.
-//Sankey Diagram: Used D3.js for a more beautiful Sankey diagram visualization.
-//Geographical Map: Added Leaflet.js to display prices on a geographical map.
-//Apple Premium Style: Improved the overall UI for a cleaner, premium look.
-
-
 import React, { useState, useEffect } from 'react';
 import { Plus, Minus, DollarSign, TrendingUp, BarChart, Download } from 'lucide-react';
 import { select } from 'd3-selection';
@@ -50,15 +42,7 @@ const StageRow = ({ stage, index, onInputChange, onRemove, baseCurrency }) => (
       />
     </td>
     <td className="custom-table-cell">
-      <select
-        value={stage.category}
-        onChange={(e) => onInputChange(index, 'category', e.target.value)}
-        className="w-full border rounded px-2 py-1"
-      >
-        {PRODUCT_CATEGORIES.map(category => (
-          <option key={category} value={category}>{category}</option>
-        ))}
-      </select>
+      {category}
     </td>
     <td className="custom-table-cell">
       <div className="flex items-center">
@@ -94,13 +78,13 @@ const StageRow = ({ stage, index, onInputChange, onRemove, baseCurrency }) => (
       </div>
     </td>
     <td className="custom-table-cell">
-      {stage.price ? ((stage.margin / stage.price) * 100).toFixed(2) : '0.00'}%
+      {stage.cost ? ((stage.margin / stage.cost) * 100).toFixed(2) : '0.00'}%
     </td>
     <td className="custom-table-cell">
       {index > 0 && (
         <button
           onClick={() => onRemove(index)}
-          className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition duration-300"
+          className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
         >
           <Minus size={16} />
         </button>
@@ -123,10 +107,11 @@ const CurrencyConversionRow = ({ stage, baseCurrency, exchangeRates }) => (
 
 const TheioVitalityMarginCalculator = () => {
   const [stages, setStages] = useState([
-    { name: 'Raw Materials', category: 'Hair kit', cost: 100, price: 120, margin: 20 },
-    { name: 'Manufacturing', category: 'Hair kit', cost: 120, price: 150, margin: 30 },
-    { name: 'Distribution', category: 'Hair kit', cost: 150, price: 200, margin: 50 },
+    { name: 'Raw Materials', cost: 100, price: 120, margin: 20 },
+    { name: 'Manufacturing', cost: 120, price: 150, margin: 30 },
+    { name: 'Distribution', cost: 150, price: 200, margin: 50 },
   ]);
+  const [category, setCategory] = useState('Hair kit');
   const [baseCurrency, setBaseCurrency] = useState('USD');
   const [exchangeRates, setExchangeRates] = useState({
     USD: 1, CAD: 1.30, EUR: 0.90, JPY: 140, KRW: 1300,
@@ -166,7 +151,6 @@ const TheioVitalityMarginCalculator = () => {
     const lastStage = stages[stages.length - 1];
     const newStage = {
       name: `Stage ${stages.length + 1}`,
-      category: PRODUCT_CATEGORIES[0],
       cost: lastStage.price,
       price: lastStage.price * 1.2,
       margin: lastStage.price * 0.2,
@@ -256,8 +240,13 @@ const TheioVitalityMarginCalculator = () => {
   }, [stages]);
 
   const exportToExcel = () => {
+    const exportStages = stages.map(stage => ({
+      ...stage,
+      category
+    }));
+
     const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.json_to_sheet(stages);
+    const ws = XLSX.utils.json_to_sheet(exportStages);
     XLSX.utils.book_append_sheet(wb, ws, "Stages");
 
     const summaryData = [
@@ -278,20 +267,27 @@ const TheioVitalityMarginCalculator = () => {
     <div className="custom-section">
       <h1 className="custom-header">Theio Vitality Margin Calculator</h1>
       
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center">
+      <div className="flex justify-between mb-4">
+        <div>
           <DollarSign className="mr-2" />
           <label className="mr-2 font-semibold">Base Currency:</label>
           <CurrencySelector value={baseCurrency} onChange={setBaseCurrency} />
         </div>
-        <div className="space-x-2">
-          <button
-            onClick={addStage}
-            className="custom-button"
+        
+        <div>
+          <label className="mr-2 font-semibold">Category:</label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="border rounded px-2 py-1"
           >
-            <Plus size={16} className="mr-2" />
-            Add Stage
-          </button>
+            {PRODUCT_CATEGORIES.map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+        </div>
+        
+        <div>
           <button
             onClick={exportToExcel}
             className="custom-button"
@@ -301,8 +297,8 @@ const TheioVitalityMarginCalculator = () => {
           </button>
         </div>
       </div>
-      
-      <div className="custom-table">
+
+      <div className="custom-table mb-4">
         <table className="min-w-full table-auto">
           <thead>
             <tr className="custom-table-header">
@@ -330,41 +326,57 @@ const TheioVitalityMarginCalculator = () => {
         </table>
       </div>
       
+      <div className="flex justify-start mb-4">
+        <button
+          onClick={addStage}
+          className="custom-button"
+        >
+          <Plus size={16} className="mr-2" />
+          Add Stage
+        </button>
+      </div>
+
       <div className="custom-stats">
         <div>
-          <p className="custom-metrics">Total Margin: 
-            <span className="ml-2 text-green-600">{CURRENCIES[baseCurrency].symbol}{totalMargin.toFixed(2)}</span>
-          </p>
-          <p className="custom-metrics">Final Price: 
-            <span className="ml-2 text-blue-600">{CURRENCIES[baseCurrency].symbol}{finalPrice.toFixed(2)}</span>
-          </p>
-          <p className="custom-metrics flex items-center">
+          <p className="custom-metrics flex items-center relative group">
             <TrendingUp className="custom-metrics-icon text-blue-500" />
-            Markup: 
+            Markup:
             <span className="ml-2 text-blue-600">{markup.toFixed(2)}%</span>
+            <div className="absolute bottom-0 left-0 mb-6 hidden group-hover:block w-64 bg-black text-white text-sm p-2 rounded opacity-75">
+              Markup is the percentage difference between the cost of a product and its selling price.
+            </div>
           </p>
-        </div>
-        <div>
-          <p className="custom-metrics flex items-center">
+          <p className="custom-metrics flex items-center relative group">
             <BarChart className="custom-metrics-icon text-purple-500" />
-            Profit Margin: 
+            Profit Margin:
             <span className="ml-2 text-purple-600">{profitMargin.toFixed(2)}%</span>
+            <div className="absolute bottom-0 left-0 mb-6 hidden group-hover:block w-64 bg-black text-white text-sm p-2 rounded opacity-75">
+              Profit Margin is the percentage of profit earned from sales.
+            </div>
           </p>
-          <p className="custom-metrics">ROI: 
+          <p className="custom-metrics flex items-center relative group">
+            ROI:
             <span className="ml-2 text-green-600">{roi.toFixed(2)}%</span>
+            <div className="absolute bottom-0 left-0 mb-6 hidden group-hover:block w-64 bg-black text-white text-sm p-2 rounded opacity-75">
+              ROI (Return on Investment) measures the gain or loss generated relative to the investment.
+            </div>
           </p>
-          <p className="custom-metrics">Break-even Units: 
+          <p className="custom-metrics flex items-center relative group">
+            Break-even Units:
             <span className="ml-2 text-orange-600">{breakEvenUnits.toFixed(2)}</span>
+            <div className="absolute bottom-0 left-0 mb-6 hidden group-hover:block w-64 bg-black text-white text-sm p-2 rounded opacity-75">
+              Break-even Units is the number of units that must be sold to cover the cost.
+            </div>
           </p>
         </div>
       </div>
 
-      <div className="custom-chart">
+      <div className="custom-chart mt-8">
         <h2 className="text-xl font-bold mb-4">Chain Margin Visualization</h2>
         <svg id="sankey" width="100%" height="100%"></svg>
       </div>
 
-      <div className="custom-chart">
+      <div className="custom-chart mt-8">
         <h2 className="text-xl font-bold mb-4">Geographical Price Visualization</h2>
         <div id="map" className="h-96"></div>
       </div>
