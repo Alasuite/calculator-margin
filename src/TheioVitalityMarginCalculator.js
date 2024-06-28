@@ -82,7 +82,7 @@ const StageRow = ({ stage, index, onInputChange, onRemove, baseCurrency }) => (
       </div>
     </td>
     <td className="custom-table-cell">
-      {stage.cost ? ((stage.margin / stage.cost) * 100).toFixed(2) : '0.00'}%
+      {stage.price ? ((stage.margin / stage.price) * 100).toFixed(2) : '0.00'}%
     </td>
     <td className="custom-table-cell">
       {index > 0 && (
