@@ -1,35 +1,38 @@
-/* index.css or App.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* Custom styles */
+body {
+  @apply dark:bg-gray-900 dark:text-gray-200;
+}
+
 .custom-button {
   @apply bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300;
 }
 
 .custom-header {
-  @apply text-4xl font-bold text-center mb-8 text-gray-800;
+  @apply text-4xl font-bold text-center mb-8 text-gray-800 dark:text-gray-200;
 }
 
 .custom-section {
-  @apply p-8 max-w-6xl mx-auto bg-white rounded-xl shadow-md space-y-8;
+  @apply p-8 max-w-4xl mx-auto bg-white rounded-xl shadow-md space-y-8 dark:bg-gray-800;
 }
 
 .custom-table {
-  @apply overflow-x-auto bg-white rounded-lg shadow;
+  @apply overflow-x-auto bg-white rounded-lg shadow dark:bg-gray-700;
 }
 
 .custom-table-header {
-  @apply bg-gray-200 text-gray-700 font-semibold;
+  @apply bg-gray-200 text-gray-700 font-semibold dark:bg-gray-800 dark:text-gray-200;
 }
 
 .custom-table-cell {
-  @apply px-4 py-2 border-t border-gray-200;
+  @apply px-4 py-2 border-t border-gray-200 dark:border-gray-600;
 }
 
 .custom-stats {
-  @apply grid grid-cols-2 gap-8 text-lg text-gray-700;
+  @apply grid grid-cols-2 gap-8 text-lg text-gray-700 dark:text-gray-200;
 }
 
 .custom-metrics {
@@ -41,9 +44,9 @@
 }
 
 .custom-chart {
-  @apply h-96 bg-white rounded-lg shadow p-6;
+  @apply h-96 bg-white rounded-lg shadow p-6 dark:bg-gray-800;
 }
 
 .custom-currency-table {
-  @apply overflow-x-auto bg-white rounded-lg shadow mt-8;
+  @apply overflow-x-auto bg-white rounded-lg shadow mt-8 dark:bg-gray-700;
 }

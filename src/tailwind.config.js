@@ -1,7 +1,6 @@
-// tailwind.config.js
 module.exports = {
+  darkMode: 'class', // Enable dark mode
   purge: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
-  darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {},
   },
@@ -9,4 +8,4 @@ module.exports = {
     extend: {},
   },
   plugins: [],
-}
+};

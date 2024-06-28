@@ -1,19 +1,8 @@
-//Summary of Changes
-//Dark Mode: Enabled dark mode in Tailwind CSS.
-//Centered Content: Adjusted CSS for better centering and spacing.
-//Sankey Diagram: Used D3.js for a more beautiful Sankey diagram visualization.
-//Geographical Map: Added Leaflet.js to display prices on a geographical map.
-//Apple Premium Style: Improved the overall UI for a cleaner, premium look.
-
-
 import React, { useState, useEffect } from 'react';
 import { Plus, Minus, DollarSign, TrendingUp, BarChart, Download } from 'lucide-react';
-import { select } from 'd3-selection';
-import { sankey, sankeyLinkHorizontal, sankeyJustify } from 'd3-sankey';
-import 'leaflet/dist/leaflet.css';
-import * as L from 'leaflet';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import * as XLSX from 'xlsx';
-import './index.css';
+import './index.css'; // Ensure the styles are imported
 
 const CURRENCIES = {
   USD: { name: 'US Dollar', symbol: '$' },
@@ -190,70 +179,13 @@ const TheioVitalityMarginCalculator = () => {
   const roi = (totalMargin / initialCost) * 100;
   const breakEvenUnits = initialCost / (finalPrice - totalMargin);
 
-  useEffect(() => {
-    const svg = select('#sankey');
-    svg.selectAll('*').remove();
-
-    const width = svg.node().getBoundingClientRect().width;
-    const height = svg.node().getBoundingClientRect().height;
-
-    const sankeyGenerator = sankey()
-      .nodeWidth(15)
-      .nodePadding(10)
-      .size([width, height])
-      .nodeAlign(sankeyJustify);
-
-    const graph = {
-      nodes: stages.map((stage, i) => ({ node: i, name: stage.name })),
-      links: stages.slice(1).map((stage, i) => ({
-        source: i,
-        target: i + 1,
-        value: stages[i + 1].cost
-      }))
-    };
-
-    const { nodes, links } = sankeyGenerator(graph);
-
-    svg.append('g')
-      .selectAll('rect')
-      .data(nodes)
-      .enter()
-      .append('rect')
-      .attr('x', d => d.x0)
-      .attr('y', d => d.y0)
-      .attr('width', d => d.x1 - d.x0)
-      .attr('height', d => d.y1 - d.y0)
-      .attr('fill', 'steelblue')
-      .attr('stroke', '#000');
-
-    svg.append('g')
-      .selectAll('path')
-      .data(links)
-      .enter()
-      .append('path')
-      .attr('d', sankeyLinkHorizontal())
-      .attr('stroke', 'grey')
-      .attr('stroke-width', d => d.width)
-      .attr('fill', 'none');
-  }, [stages]);
-
-  useEffect(() => {
-    const map = L.map('map').setView([20, 0], 2);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    stages.forEach(stage => {
-      L.marker([Math.random() * 170 - 85, Math.random() * 360 - 180])
-        .addTo(map)
-        .bindPopup(`<b>${stage.name}</b><br>${CURRENCIES[baseCurrency].symbol}${stage.price}`);
-    });
-
-    return () => {
-      map.remove();
-    };
-  }, [stages]);
+  const graphData = stages.map((stage, index) => ({
+    name: stage.name,
+    cost: stage.cost,
+    price: stage.price,
+    margin: stage.margin,
+    cumulativeMargin: stages.slice(0, index + 1).reduce((sum, s) => sum + s.margin, 0),
+  }));
 
   const exportToExcel = () => {
     const wb = XLSX.utils.book_new();
@@ -361,12 +293,19 @@ const TheioVitalityMarginCalculator = () => {
 
       <div className="custom-chart">
         <h2 className="text-xl font-bold mb-4">Chain Margin Visualization</h2>
-        <svg id="sankey" width="100%" height="100%"></svg>
-      </div>
-
-      <div className="custom-chart">
-        <h2 className="text-xl font-bold mb-4">Geographical Price Visualization</h2>
-        <div id="map" className="h-96"></div>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={graphData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis yAxisId="left" />
+            <YAxis yAxisId="right" orientation="right" />
+            <Tooltip />
+            <Legend />
+            <Line yAxisId="left" type="monotone" dataKey="cost" stroke="#8884d8" name="Cost" />
+            <Line yAxisId="left" type="monotone" dataKey="price" stroke="#82ca9d" name="Price" />
+            <Line yAxisId="right" type="monotone" dataKey="cumulativeMargin" stroke="#ffc658" name="Cumulative Margin" />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
 
       <h2 className="text-2xl font-bold mt-8 mb-4">Currency Conversion Table</h2>
